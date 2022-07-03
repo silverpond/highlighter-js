@@ -9,6 +9,8 @@
   "author": "Silverpond",
   "license": "ISC",
   "dependencies": {
+    "@types/paho-mqtt": "^1.0.6",
+    "paho-mqtt": "^1.1.0",
     "typescript": "^4.7.4"
   }
 }
