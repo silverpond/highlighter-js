@@ -1,6 +1,6 @@
 import Paho from 'paho-mqtt'
 
-async function getSessionCredentials(host: string, pipelineId: string, apiKey: string) : Promise<HLStreamingSession> {
+async function getSessionCredentials(host: string, pipelineId: string): Promise<HLStreamingSession> {
   var url = host + "/graphql"
   const response = await fetch(url, {
     method: 'POST',
@@ -37,9 +37,9 @@ async function getSessionCredentials(host: string, pipelineId: string, apiKey: s
   var text = await response.text();
   console.log("Result: " + text)
   var result = JSON.parse(text);
-  var creds : HlServingSessionCredentials = result.data.createHlServingSession.sessionCredentials
+  var creds: HlServingSessionCredentials = result.data.createHlServingSession.sessionCredentials
   var session = new HLStreamingSession(creds);
-  return await session;
+  return session;
 }
 
 interface HighlighterStreaming {
@@ -62,29 +62,29 @@ type HlServingSessionCredentials = {
 export class HLStreamingSession {
   sessionCredentials: HlServingSessionCredentials;
   reconnectTimeout: number = 2000;
-  mqttClient: Paho.Client;
-  onMessage: Function;
-  onFailure: Function;
+  mqttClient: Paho.Client | null = null;
+  onMessage: Function | null = null;
+  onFailure: Function | null = null;
 
   constructor(sessionCredentials: HlServingSessionCredentials) {
     this.sessionCredentials = sessionCredentials
   }
 
-  _onConnectionFailure(mqttMessage) {
-    console.debug("Failed to connect: "  + JSON.stringify(mqttMessage)); //+ mqtt_host_port);
-    if(this.onFailure && typeof this.onFailure === "function") {
+  _onConnectionFailure(mqttMessage: any) {
+    console.debug("Failed to connect: " + JSON.stringify(mqttMessage)); //+ mqtt_host_port);
+    if (this.onFailure && typeof this.onFailure === "function") {
       this.onFailure(mqttMessage);
     }
     setTimeout(this.connect, this.reconnectTimeout);
   }
 
-  _onMessageArrived(mqttMessage) {
+  _onMessageArrived(mqttMessage: any) {
     const topic = mqttMessage.destinationName;
     const mqttPayload = mqttMessage.payloadString;
     console.debug("Received: " + topic + ": " + mqttPayload);
     const hlMessage: HlServingMessage = JSON.parse(mqttPayload);
 
-    if(this.onMessage && typeof this.onMessage === "function") {
+    if (this.onMessage && typeof this.onMessage === "function") {
       this.onMessage(hlMessage.command, hlMessage.entity_id, hlMessage.payload);
     }
   }
@@ -92,9 +92,9 @@ export class HLStreamingSession {
   connect() {
     console.debug("Connecting with " + JSON.stringify(this.sessionCredentials))
     this.mqttClient = new Paho.Client(this.sessionCredentials.host,
-                                      this.sessionCredentials.port,
-                                      this.sessionCredentials.sessionId);
-    var options = {
+      this.sessionCredentials.port,
+      this.sessionCredentials.sessionId);
+    const options = {
       timeout: 3,
       useSSL: true,
       userName: this.sessionCredentials.username,
@@ -109,7 +109,11 @@ export class HLStreamingSession {
 
   onConnect() {
     console.log("Connected and subscribing to: " + this.sessionCredentials.topicResponse);
-    this.mqttClient.subscribe(this.sessionCredentials.topicResponse);
+    if (this.mqttClient) {
+      this.mqttClient.subscribe(this.sessionCredentials.topicResponse);
+    } else {
+      console.log("trying to connect without setting mqttClient");
+    }
     // this.publish("[HL Web Browser] hello world");
   }
 
@@ -117,7 +121,8 @@ export class HLStreamingSession {
     var message = new Paho.Message(payload);
     message.destinationName = this.sessionCredentials.topicRequest;
     message.retained = false;
-    this.mqttClient.send(message);
+    if (this.mqttClient)
+      this.mqttClient.send(message);
   }
 
   //  {
@@ -129,7 +134,7 @@ export class HLStreamingSession {
   //      "payload": "My dog won't play fetch"
   //  }
   infer(entityId: string, payload: string) {
-    var message : HlServingMessage = {
+    var message: HlServingMessage = {
       'version': 0,
       'frame_id': 0,
       'command': 'infer',
@@ -137,7 +142,7 @@ export class HLStreamingSession {
       'entity_id': entityId,
       'payload': payload
     }
-    const mqtt_payload : string = JSON.stringify(message);
+    const mqtt_payload: string = JSON.stringify(message);
     this.publish(mqtt_payload);
   }
 }
@@ -155,7 +160,7 @@ type HLWindow = (typeof window) & {
   HL: HighlighterStreaming;
 }
 
-export const HL : HighlighterStreaming = {
+export const HL: HighlighterStreaming = {
   openStreamingSession: getSessionCredentials,
 };
 
