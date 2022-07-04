@@ -160,8 +160,6 @@ type HLWindow = (typeof window) & {
   HL: HighlighterStreaming;
 }
 
-export const HL: HighlighterStreaming = {
-  openStreamingSession: getSessionCredentials,
-};
+export { getSessionCredentials };
 
-(window as HLWindow).HL = HL;
+//(window as HLWindow).HL = HL;
