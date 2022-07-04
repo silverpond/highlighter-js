@@ -1,5 +1,5 @@
 {
-  "name": "javascript-client",
+  "name": "highlighter-js",
   "version": "1.0.0",
   "description": "HL Javascript client",
   "main": "dist/index.js" ,
