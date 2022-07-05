@@ -1,6 +1,6 @@
 import Paho from 'paho-mqtt'
 
-async function getSessionCredentials(host: string, pipelineId: string): Promise<HLStreamingSession> {
+async function getSessionCredentials(host: string, pipelineId: string): Promise<SessionCredentials> {
   var url = host + "/graphql"
   const response = await fetch(url, {
     method: 'POST',
@@ -37,16 +37,16 @@ async function getSessionCredentials(host: string, pipelineId: string): Promise<
   var text = await response.text();
   console.log("Result: " + text)
   var result = JSON.parse(text);
-  var creds: HlServingSessionCredentials = result.data.createHlServingSession.sessionCredentials
-  var session = new HLStreamingSession(creds);
-  return session;
+  var creds: SessionCredentials = result.data.createHlServingSession.sessionCredentials
+  return creds
 }
 
 interface HighlighterStreaming {
-  openStreamingSession: any
+  getSessionCredentials: any
+  StreamingSession: Function
 }
 
-type HlServingSessionCredentials = {
+type SessionCredentials = {
   sessionId: string,
   sessionKey: string,
   websocketUrl: string,
@@ -59,14 +59,14 @@ type HlServingSessionCredentials = {
   topicResponse: string,
 }
 
-export class HLStreamingSession {
-  sessionCredentials: HlServingSessionCredentials;
+class StreamingSession {
+  sessionCredentials: SessionCredentials;
   reconnectTimeout: number = 2000;
   mqttClient: Paho.Client | null = null;
   onMessage: Function | null = null;
   onFailure: Function | null = null;
 
-  constructor(sessionCredentials: HlServingSessionCredentials) {
+  constructor(sessionCredentials: SessionCredentials) {
     this.sessionCredentials = sessionCredentials
   }
 
@@ -160,12 +160,13 @@ type HLWindow = (typeof window) & {
   HL: HighlighterStreaming;
 }
 
-export { getSessionCredentials };
-
 const HL: HighlighterStreaming = {
-  openStreamingSession: getSessionCredentials,
+  getSessionCredentials: getSessionCredentials,
+  StreamingSession: function(creds: SessionCredentials): StreamingSession {
+    return new StreamingSession(creds)
+  },
 };
 
-export { HL }
+export { HL };
 
 (window as HLWindow).HL = HL;
