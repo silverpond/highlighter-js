@@ -59,11 +59,15 @@ type SessionCredentials = {
   topicResponse: string,
 }
 
+type OnMessageFuncton = {
+  (command: string, entityId: string, payload: any): void
+}
+
 class StreamingSession {
   sessionCredentials: SessionCredentials;
   reconnectTimeout: number = 2000;
   mqttClient: Paho.Client | null = null;
-  onMessage: Function | null = null;
+  onMessage: OnMessageFuncton | null = null;
   onFailure: Function | null = null;
 
   constructor(sessionCredentials: SessionCredentials) {
