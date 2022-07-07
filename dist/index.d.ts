@@ -1,9 +1,6 @@
 import Paho from 'paho-mqtt';
-declare function getSessionCredentials(host: string, pipelineId: string): Promise<HLStreamingSession>;
-interface HighlighterStreaming {
-    openStreamingSession: any;
-}
-declare type HlServingSessionCredentials = {
+declare function getSessionCredentials(host: string, pipelineId: string): Promise<SessionCredentials>;
+declare type SessionCredentials = {
     sessionId: string;
     sessionKey: string;
     websocketUrl: string;
@@ -15,13 +12,16 @@ declare type HlServingSessionCredentials = {
     topicRequest: string;
     topicResponse: string;
 };
-export declare class HLStreamingSession {
-    sessionCredentials: HlServingSessionCredentials;
+declare type OnMessageFuncton = {
+    (command: string, entityId: string, payload: any): void;
+};
+declare class StreamingSession {
+    sessionCredentials: SessionCredentials;
     reconnectTimeout: number;
     mqttClient: Paho.Client | null;
-    onMessage: Function | null;
+    onMessage: OnMessageFuncton | null;
     onFailure: Function | null;
-    constructor(sessionCredentials: HlServingSessionCredentials);
+    constructor(sessionCredentials: SessionCredentials);
     _onConnectionFailure(mqttMessage: any): void;
     _onMessageArrived(mqttMessage: any): void;
     connect(): void;
@@ -29,6 +29,8 @@ export declare class HLStreamingSession {
     publish(payload: string): void;
     infer(entityId: string, payload: string): void;
 }
-export { getSessionCredentials };
-declare const HL: HighlighterStreaming;
-export { HL };
+declare const HL: {
+    getSessionCredentials: typeof getSessionCredentials;
+    StreamingSession: typeof StreamingSession;
+};
+export { HL, SessionCredentials };

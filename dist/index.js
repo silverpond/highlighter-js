@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HL = exports.getSessionCredentials = exports.HLStreamingSession = void 0;
+exports.HL = void 0;
 const paho_mqtt_1 = __importDefault(require("paho-mqtt"));
 function getSessionCredentials(host, pipelineId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -53,12 +53,10 @@ function getSessionCredentials(host, pipelineId) {
         console.log("Result: " + text);
         var result = JSON.parse(text);
         var creds = result.data.createHlServingSession.sessionCredentials;
-        var session = new HLStreamingSession(creds);
-        return session;
+        return creds;
     });
 }
-exports.getSessionCredentials = getSessionCredentials;
-class HLStreamingSession {
+class StreamingSession {
     constructor(sessionCredentials) {
         this.reconnectTimeout = 2000;
         this.mqttClient = null;
@@ -104,7 +102,6 @@ class HLStreamingSession {
         else {
             console.log("trying to connect without setting mqttClient");
         }
-        // this.publish("[HL Web Browser] hello world");
     }
     publish(payload) {
         var message = new paho_mqtt_1.default.Message(payload);
@@ -113,14 +110,6 @@ class HLStreamingSession {
         if (this.mqttClient)
             this.mqttClient.send(message);
     }
-    //  {
-    //      "version": 0,
-    //      "frame_id":  0,
-    //      "command":  "infer",
-    //      "schema": "text",  # "[type, type]"
-    //      "entity_id":  xxx-xxx-xxx-xxx,
-    //      "payload": "My dog won't play fetch"
-    //  }
     infer(entityId, payload) {
         var message = {
             'version': 0,
@@ -134,9 +123,9 @@ class HLStreamingSession {
         this.publish(mqtt_payload);
     }
 }
-exports.HLStreamingSession = HLStreamingSession;
 const HL = {
-    openStreamingSession: getSessionCredentials,
+    getSessionCredentials,
+    StreamingSession
 };
 exports.HL = HL;
 window.HL = HL;
