@@ -113,7 +113,6 @@ class StreamingSession {
     } else {
       console.log("trying to connect without setting mqttClient");
     }
-    // this.publish("[HL Web Browser] hello world");
   }
 
   publish(payload: string) {
@@ -124,14 +123,6 @@ class StreamingSession {
       this.mqttClient.send(message);
   }
 
-  //  {
-  //      "version": 0,
-  //      "frame_id":  0,
-  //      "command":  "infer",
-  //      "schema": "text",  # "[type, type]"
-  //      "entity_id":  xxx-xxx-xxx-xxx,
-  //      "payload": "My dog won't play fetch"
-  //  }
   infer(entityId: string, payload: string) {
     var message: HlServingMessage = {
       'version': 0,
