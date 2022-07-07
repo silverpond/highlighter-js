@@ -41,11 +41,6 @@ async function getSessionCredentials(host: string, pipelineId: string): Promise<
   return creds
 }
 
-interface HighlighterStreaming {
-  getSessionCredentials: any
-  StreamingSession: Function
-}
-
 type SessionCredentials = {
   sessionId: string,
   sessionKey: string,
@@ -159,18 +154,15 @@ type HlServingMessage = {
   entity_id: string,
   payload: string,
 }
-
-type HLWindow = (typeof window) & {
-  HL: HighlighterStreaming;
-}
-
-const HL: HighlighterStreaming = {
-  getSessionCredentials: getSessionCredentials,
-  StreamingSession: function(creds: SessionCredentials): StreamingSession {
-    return new StreamingSession(creds)
-  },
+const HL = {
+  getSessionCredentials,
+  StreamingSession
 };
 
-export { HL };
+type HLWindow = (typeof window) & {
+  HL: any;
+}
+
+export { HL, SessionCredentials };
 
 (window as HLWindow).HL = HL;
