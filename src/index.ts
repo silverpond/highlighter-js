@@ -123,28 +123,73 @@ class StreamingSession {
       this.mqttClient.send(message);
   }
 
-  infer(entityId: string, payload: string) {
+  infer(entityId: string, payload: string, frameId: number) {
+    var text: HlText = {
+      'type': 'ml_text',
+      'frames': [
+        {
+          'id': frameId,
+          'sentence': payload,
+          'entity_id': entityId,
+        }]
+    }
+
     var message: HlServingMessage = {
       'version': 0,
-      'frame_id': 0,
+      'frame_id': frameId,
       'command': 'infer',
-      'schema': 'text',
+      'schema': ['text'],
       'entity_id': entityId,
-      'payload': payload
+      'payload': text
     }
     const mqtt_payload: string = JSON.stringify(message);
+    console.debug("publishing payload: " + mqtt_payload);
     this.publish(mqtt_payload);
   }
 }
+
+type HlText = {
+  type: string,
+  frames: Array<{
+    id: number,
+    sentence: string,
+    entity_id: string,
+  }>,
+}
+
+//
+//  Received: session/demo_180/session/out: {"version": 0, "frame_id": 4, "command": "infer_response", "schema": ["eavt"], "entity_id": "4a1e9fdd-d4de-4b2b-aaf3-a9c6f799016f", "payload": [{"entity_id": "4a1e9fdd-d4de-4b2b-aaf3-a9c6f799016f", "attribute_id": "caf61fa6-abed-4941-847a-d247f5239a2d", "value": "c3ef87a8-f155-48f7-ae91-78a3e7811ca2", "time": "2022-07-13T17:10:02.573975", "datum_source": {"frameId": 4, "hostId": null, "pipelineElementName": null, "pipelineId": null, "pipelineElementId": null, "trainingRunId": null, "confidence": 0.9753193855285645}}, {"entity_id": "4a1e9fdd-d4de-4b2b-aaf3-a9c6f799016f", "attribute_id": "caf61fa6-abed-4941-847a-d247f5239a2d", "value": "e142f96f-9f2d-40a7-9256-74b2608247ca", "time": "2022-07-13T17:10:02.574082", "datum_source": {"frameId": 4, "hostId": null, "pipelineElementName": null, "pipelineId": null, "pipelineElementId": null, "trainingRunId": null, "confidence": 0.5444248914718628}}, {"entity_id": "4a1e9fdd-d4de-4b2b-aaf3-a9c6f799016f", "attribute_id": "caf61fa6-abed-4941-847a-d247f5239a2d", "value": "82053230-b06f-4c9f-bbd3-7591f2d11c19", "time": "2022-07-13T17:10:02.574144", "datum_source": {"frameId": 4, "hostId": null, "pipelineElementName": null, "pipelineId": null, "pipelineElementId": null, "trainingRunId": null, "confidence": 0.5430828332901001}}, {"entity_id": "4a1e9fdd-d4de-4b2b-aaf3-a9c6f799016f", "attribute_id": "caf61fa6-abed-4941-847a-d247f5239a2d", "value": "871b5f5c-aa3d-420a-85c1-f02a7de68911", "time": "2022-07-13T17:10:02.574201", "datum_source": {"frameId": 4, "hostId": null, "pipelineElementName": null, "pipelineId": null, "pipelineElementId": null, "trainingRunId": null, "confidence": 0.3508743643760681}}], "errors": []}
 
 type HlServingMessage = {
   version: number,
   frame_id: number,
   command: string,
-  schema: string,
+  schema: Array<string>,
   entity_id: string,
-  payload: string,
+  payload: Array<HlEavt> | HlText,
+  errors?: Array<string>,
 }
+
+type HlEavt = {
+  entity_id: string,  //uuid
+  attribute_id: string, //uuid
+  attribute_name: string,
+  attribute_type: string, // boolean, enum, integer, decimal, string, geometry, array
+  attribute_enum_id?: string, //uuid
+  attribute_enum_value?: string,
+  value?: object, //boolean, integer, float, string, date, undefined
+  time: Date,
+  datum_source: {
+    frame_id: number,
+    host_id: string,
+    pipeline_id: string,
+    pipeline_element_id: string,
+    pipeline_element_name: string,
+    training_run_id: number,
+    confidence: number,
+  }
+}
+
 const HL = {
   getSessionCredentials,
   StreamingSession
