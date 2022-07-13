@@ -55,7 +55,7 @@ type SessionCredentials = {
 }
 
 type OnMessageFuncton = {
-  (command: string, entityId: string, payload: any): void
+  (command: string, entityId: string, payload: HlEavt[] | HlText): void
 }
 
 class StreamingSession {
@@ -199,6 +199,6 @@ type HLWindow = (typeof window) & {
   HL: any;
 }
 
-export { HL, SessionCredentials };
+export { HL, SessionCredentials, HlServingMessage, HlEavt, HlText };
 
 (window as HLWindow).HL = HL;
