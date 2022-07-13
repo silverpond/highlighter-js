@@ -110,16 +110,27 @@ class StreamingSession {
         if (this.mqttClient)
             this.mqttClient.send(message);
     }
-    infer(entityId, payload) {
+    infer(entityId, payload, frameId) {
+        var text = {
+            'type': 'ml_text',
+            'frames': [
+                {
+                    'id': frameId,
+                    'sentence': payload,
+                    'entity_id': entityId,
+                }
+            ]
+        };
         var message = {
             'version': 0,
-            'frame_id': 0,
+            'frame_id': frameId,
             'command': 'infer',
-            'schema': 'text',
+            'schema': ['text'],
             'entity_id': entityId,
-            'payload': payload
+            'payload': text
         };
         const mqtt_payload = JSON.stringify(message);
+        console.debug("publishing payload: " + mqtt_payload);
         this.publish(mqtt_payload);
     }
 }
