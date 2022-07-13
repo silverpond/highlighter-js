@@ -1,20 +1,26 @@
-import { HL, SessionCredentials } from 'highlighter-js/dist'
+import { HL, SessionCredentials, HlEavt, HlText } from 'highlighter-js/dist'
 
 async function start() {
   let data = await fetch("/get_session")
   let json = await data.json()
   const creds: SessionCredentials = json.data.createHlServingSession.sessionCredentials
-  const entityId = 'entity-id'
+  const entityId = crypto.randomUUID();
 
   let session = new HL.StreamingSession(creds);
 
-  session.onMessage = (command: any, entityId: string, payload: any) => {
+  session.onMessage = (command: string, entityId: string, payload: HlEavt[] | HlText) => {
     let container = document.getElementById("container")
     if (!container) return
+    let div = document.createElement("div")
+    if ("length" in payload) {
+      for (let eavt of payload) {
+        let span = document.createElement("span")
+        span.innerText = eavt.attribute_name + ": " + eavt.attribute_enum_value + " "
+        div.appendChild(span)
+      }
+    }
 
-    let li = document.createElement("li")
-    li.textContent = '[' + entityId + ' | ' + command + ']  ' + payload
-    container.prepend(li);
+    container.append(div);
   };
 
   let button = document.getElementById("sendMessageButton")
