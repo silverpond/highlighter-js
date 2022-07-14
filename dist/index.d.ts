@@ -27,7 +27,7 @@ declare class StreamingSession {
     connect(): void;
     onConnect(): void;
     publish(payload: string): void;
-    infer(entityId: string, payload: string, frameId: number): void;
+    inferText(entityId: string, payload: string, frameId: number): void;
 }
 declare type HlText = {
     type: string;
