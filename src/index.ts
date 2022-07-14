@@ -123,7 +123,7 @@ class StreamingSession {
       this.mqttClient.send(message);
   }
 
-  infer(entityId: string, payload: string, frameId: number) {
+  inferText(entityId: string, payload: string, frameId: number) {
     var text: HlText = {
       'type': 'ml_text',
       'frames': [
