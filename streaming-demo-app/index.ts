@@ -28,7 +28,7 @@ async function start() {
   if (button) button.addEventListener("click", async () => {
     let input = document.getElementById('sendMessageInput')
     if (!input) return
-    session.infer(entityId, (input as HTMLInputElement).value, 0)
+    session.inferText(entityId, (input as HTMLInputElement).value, 0)
   })
 
   session.connect();
