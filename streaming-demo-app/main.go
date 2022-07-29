@@ -22,7 +22,7 @@ func main() {
 	apiToken := flag.String("apiToken", "", "API Token")
 	flag.Parse()
 
-	fmt.Println("Starting webserver")
+	fmt.Println("Running webserver on port 3001")
 	http.HandleFunc("/index.js", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "dist/index.js")
 	})
