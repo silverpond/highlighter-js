@@ -9,8 +9,8 @@ declare type SessionCredentials = {
     port: number;
     username: string;
     password: string;
-    topicRequest: string;
-    topicResponse: string;
+    topicIn: string;
+    topicOut: string;
 };
 declare type OnMessageFuncton = {
     (command: string, entityId: string, payload: HlEavt[] | HlText): void;

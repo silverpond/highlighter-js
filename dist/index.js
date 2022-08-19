@@ -37,8 +37,8 @@ function getSessionCredentials(host, pipelineId) {
                 port
                 username
                 password
-                topicRequest
-                topicResponse
+                topicIn
+                topicOut
               }
               errors
             }
@@ -95,9 +95,9 @@ class StreamingSession {
         this.mqttClient.connect(options);
     }
     onConnect() {
-        console.log("Connected and subscribing to: " + this.sessionCredentials.topicResponse);
+        console.log("Connected and subscribing to: " + this.sessionCredentials.topicOut);
         if (this.mqttClient) {
-            this.mqttClient.subscribe(this.sessionCredentials.topicResponse);
+            this.mqttClient.subscribe(this.sessionCredentials.topicOut);
         }
         else {
             console.log("trying to connect without setting mqttClient");
@@ -105,7 +105,7 @@ class StreamingSession {
     }
     publish(payload) {
         var message = new paho_mqtt_1.default.Message(payload);
-        message.destinationName = this.sessionCredentials.topicRequest;
+        message.destinationName = this.sessionCredentials.topicIn;
         message.retained = false;
         if (this.mqttClient)
             this.mqttClient.send(message);
