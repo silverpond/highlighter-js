@@ -43,8 +43,8 @@ func main() {
                 port
                 username
                 password
-                topicRequest
-                topicResponse
+                topicIn
+                topicOut
               }
               errors
             }
