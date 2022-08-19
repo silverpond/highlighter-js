@@ -3,6 +3,10 @@ import { HL, SessionCredentials, HlEavt, HlText } from 'highlighter-js/dist'
 async function start() {
   let data = await fetch("/get_session")
   let json = await data.json()
+  if (json.message) {
+    document.body.append(json.message)
+    return
+  }
   const creds: SessionCredentials = json.data.createHlServingSession.sessionCredentials
   const entityId = crypto.randomUUID();
 
@@ -28,7 +32,7 @@ async function start() {
   if (button) button.addEventListener("click", async () => {
     let input = document.getElementById('sendMessageInput')
     if (!input) return
-    session.infer(entityId, (input as HTMLInputElement).value, 0)
+    session.inferText(entityId, (input as HTMLInputElement).value, 0)
   })
 
   session.connect();

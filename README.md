@@ -1,12 +1,15 @@
-# run compiler in watch mode
+### run compiler in watch mode
 
-npx tsc -w
+`npx tsc -w`
 
-# build single file bundle
+### build single file bundle
 
-npx webpack
+`npx webpack`
 
-# release branch,
+### build es module (used by streaming-demo-app)
 
+`npx tsc`
+
+### release branch,
 
 until we get publishing via npm working, using git release branch for now
